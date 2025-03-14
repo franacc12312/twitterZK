@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Twitter Login App</title>
+  <link rel="stylesheet" href="./css/styles.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Twitter Account Information</h1>
+      <p>Login with your Twitter account to view your account information</p>
+    </header>
+    
+    <main>
+      <div id="login-section" class="section">
+        <button id="login-button" class="btn-primary">Login with Twitter</button>
+        <div id="login-status" class="status-message"></div>
+      </div>
+      
+      <div id="user-info-section" class="section hidden">
+        <h2>Your Twitter Account Information</h2>
+        <div class="user-info-container">
+          <div class="info-item">
+            <span class="info-label">Twitter ID:</span>
+            <span id="twitter-id" class="info-value">-</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Account Age:</span>
+            <span id="account-age" class="info-value">-</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Followers:</span>
+            <span id="followers-count" class="info-value">-</span>
+          </div>
+        </div>
+        <button id="logout-button" class="btn-secondary">Logout</button>
+      </div>
+    </main>
+    
+    <footer>
+      <p>Twitter Login Demo Application</p>
+    </footer>
+  </div>
+  
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html> 

@@ -1,0 +1,11 @@
+{
+  "twitter": {
+    "scopes": ["tweet.read", "users.read"],
+    "redirectUri": "http://localhost:1234/callback"
+  },
+  "application": {
+    "name": "Twitter Login App",
+    "version": "1.0.0",
+    "logLevel": "info"
+  }
+} 
