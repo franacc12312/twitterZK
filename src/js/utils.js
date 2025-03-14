@@ -48,55 +48,87 @@ function calculateAccountAge(createdAt) {
     const creationDate = new Date(createdAt);
     const currentDate = new Date();
     
-    // Calculate difference in milliseconds
-    const diffTime = currentDate - creationDate;
+    const ageInMilliseconds = currentDate - creationDate;
+    const millisecondsPerYear = 1000 * 60 * 60 * 24 * 365.25; // Account for leap years
     
-    // Convert to years (milliseconds to years)
-    const ageInYears = diffTime / (1000 * 60 * 60 * 24 * 365.25);
+    // Calculate years with one decimal place precision
+    const years = (ageInMilliseconds / millisecondsPerYear).toFixed(1);
     
-    // Round to 1 decimal place
-    return Math.round(ageInYears * 10) / 10;
+    return parseFloat(years);
   } catch (error) {
-    logger.error(MODULE_NAME, 'Error calculating account age', { error: error.message });
+    logger.error(MODULE_NAME, `Error calculating account age: ${error.message}`);
     return 0;
   }
 }
 
 /**
- * Format number with thousands separators
+ * Format a number with thousands separators
  * @param {number} number - Number to format
  * @returns {string} Formatted number
  */
 function formatNumber(number) {
-  if (typeof number !== 'number') {
-    logger.warn(MODULE_NAME, `Invalid number provided for formatting: ${number}`);
+  logger.debug(MODULE_NAME, `Formatting number: ${number}`);
+  
+  if (number === undefined || number === null) {
     return '0';
   }
   
   try {
-    return number.toLocaleString();
+    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   } catch (error) {
-    logger.error(MODULE_NAME, 'Error formatting number', { error: error.message });
-    return number.toString();
+    logger.error(MODULE_NAME, `Error formatting number: ${error.message}`);
+    return '0';
   }
 }
 
 /**
- * Get URL query parameters as an object
- * @returns {Object} Object containing URL query parameters
+ * Truncate Ethereum address for display
+ * @param {string} address - Ethereum address to truncate
+ * @param {number} frontChars - Number of characters to keep at the front
+ * @param {number} endChars - Number of characters to keep at the end
+ * @returns {string} Truncated address (e.g., 0x1234...5678)
  */
-function getQueryParams() {
-  logger.debug(MODULE_NAME, 'Extracting URL query parameters');
+function truncateAddress(address, frontChars = 6, endChars = 4) {
+  logger.debug(MODULE_NAME, `Truncating address: ${address}`);
   
-  const params = {};
-  const urlSearchParams = new URLSearchParams(window.location.search);
-  
-  // Convert URLSearchParams to plain object
-  for (const [key, value] of urlSearchParams.entries()) {
-    params[key] = value;
+  if (!address) {
+    logger.warn(MODULE_NAME, 'No address provided to truncate');
+    return '';
   }
   
-  return params;
+  try {
+    if (address.length <= frontChars + endChars) {
+      return address;
+    }
+    
+    return `${address.slice(0, frontChars)}...${address.slice(-endChars)}`;
+  } catch (error) {
+    logger.error(MODULE_NAME, `Error truncating address: ${error.message}`);
+    return address;
+  }
+}
+
+/**
+ * Get URL query parameters
+ * @returns {Object} Object with query parameters
+ */
+function getQueryParams() {
+  logger.debug(MODULE_NAME, 'Getting query parameters');
+  
+  try {
+    const queryParams = {};
+    const searchParams = new URLSearchParams(window.location.search);
+    
+    for (const [key, value] of searchParams.entries()) {
+      queryParams[key] = value;
+    }
+    
+    logger.debug(MODULE_NAME, 'Query parameters', queryParams);
+    return queryParams;
+  } catch (error) {
+    logger.error(MODULE_NAME, `Error getting query parameters: ${error.message}`);
+    return {};
+  }
 }
 
 /**
@@ -108,25 +140,37 @@ function storeSessionData(key, value) {
   logger.debug(MODULE_NAME, `Storing data in session storage: ${key}`);
   
   try {
-    sessionStorage.setItem(key, JSON.stringify(value));
+    const serializedValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
+    sessionStorage.setItem(key, serializedValue);
   } catch (error) {
-    logger.error(MODULE_NAME, 'Error storing session data', { key, error: error.message });
+    logger.error(MODULE_NAME, `Error storing session data: ${error.message}`);
   }
 }
 
 /**
- * Retrieve data from session storage
+ * Get data from session storage
  * @param {string} key - Storage key
- * @returns {*} Retrieved value (JSON parsed) or null if not found
+ * @returns {*} Retrieved value (JSON parsed if possible)
  */
 function getSessionData(key) {
-  logger.debug(MODULE_NAME, `Retrieving data from session storage: ${key}`);
+  logger.debug(MODULE_NAME, `Getting data from session storage: ${key}`);
   
   try {
-    const item = sessionStorage.getItem(key);
-    return item ? JSON.parse(item) : null;
+    const value = sessionStorage.getItem(key);
+    
+    if (!value) {
+      logger.debug(MODULE_NAME, `No data found for key: ${key}`);
+      return null;
+    }
+    
+    // Try to parse as JSON, return as string if not valid JSON
+    try {
+      return JSON.parse(value);
+    } catch {
+      return value;
+    }
   } catch (error) {
-    logger.error(MODULE_NAME, 'Error retrieving session data', { key, error: error.message });
+    logger.error(MODULE_NAME, `Error retrieving session data: ${error.message}`);
     return null;
   }
 }
@@ -141,7 +185,7 @@ function removeSessionData(key) {
   try {
     sessionStorage.removeItem(key);
   } catch (error) {
-    logger.error(MODULE_NAME, 'Error removing session data', { key, error: error.message });
+    logger.error(MODULE_NAME, `Error removing session data: ${error.message}`);
   }
 }
 
@@ -149,6 +193,7 @@ export default {
   generateRandomString,
   calculateAccountAge,
   formatNumber,
+  truncateAddress,
   getQueryParams,
   storeSessionData,
   getSessionData,

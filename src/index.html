@@ -3,24 +3,29 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Twitter Login App</title>
+  <title>Twitter & Ethereum Login App</title>
   <link rel="stylesheet" href="./css/styles.css">
 </head>
 <body>
   <div class="container">
     <header>
-      <h1>Twitter Account Information</h1>
-      <p>Login with your Twitter account to view your account information</p>
+      <h1>Twitter & Ethereum Authentication</h1>
+      <p>Login with your Twitter account and connect your Ethereum wallet to view your information</p>
     </header>
     
     <main>
       <div id="login-section" class="section">
-        <button id="login-button" class="btn-primary">Login with Twitter</button>
+        <div class="auth-buttons">
+          <button id="login-button" class="btn-primary">Login with Twitter</button>
+          <button id="wallet-button" class="btn-ethereum">Connect Wallet</button>
+        </div>
+        <div id="auth-status" class="status-message"></div>
         <div id="login-status" class="status-message"></div>
+        <div id="wallet-status" class="status-message"></div>
       </div>
       
       <div id="user-info-section" class="section hidden">
-        <h2>Your Twitter Account Information</h2>
+        <h2>Your Account Information</h2>
         <div class="user-info-container">
           <div class="info-item">
             <span class="info-label">Twitter ID:</span>
@@ -34,13 +39,17 @@
             <span class="info-label">Followers:</span>
             <span id="followers-count" class="info-value">-</span>
           </div>
+          <div class="info-item">
+            <span class="info-label">Ethereum Address:</span>
+            <span id="eth-address" class="info-value">-</span>
+          </div>
         </div>
         <button id="logout-button" class="btn-secondary">Logout</button>
       </div>
     </main>
     
     <footer>
-      <p>Twitter Login Demo Application</p>
+      <p>Twitter & Ethereum Login Demo Application</p>
     </footer>
   </div>
   

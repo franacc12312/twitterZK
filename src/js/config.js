@@ -15,8 +15,13 @@ const CONFIG = {
     scopes: ['tweet.read', 'users.read'],
     redirectUri: 'http://localhost:1234/callback'
   },
+  ethereum: {
+    required: true, // Both Twitter and Ethereum auth are required
+    networkName: 'Ethereum Mainnet',
+    chainId: '0x1' // Hex string for Ethereum Mainnet
+  },
   application: {
-    name: 'Twitter Login App',
+    name: 'Twitter & Ethereum Login App',
     version: '1.0.0',
     logLevel: 'info'
   }
@@ -82,6 +87,14 @@ function getTwitterConfig() {
 }
 
 /**
+ * Get Ethereum configuration
+ * @returns {Object} Ethereum-specific configuration
+ */
+function getEthereumConfig() {
+  return CONFIG.ethereum;
+}
+
+/**
  * Get application configuration
  * @returns {Object} Application-specific configuration
  */
@@ -93,5 +106,6 @@ export default {
   init,
   getConfig,
   getTwitterConfig,
+  getEthereumConfig,
   getAppConfig
 }; 

@@ -1,14 +1,16 @@
 # Twitter OAuth Authentication App
 
-A simple web application that allows users to authenticate with their Twitter account using OAuth 2.0 and view basic account information including:
+A simple web application that allows users to authenticate with their Twitter account using OAuth 2.0 and connect their Ethereum wallet using MetaMask to view basic account information including:
 - Twitter ID
 - Account age (in years)
 - Number of followers
+- Ethereum wallet address
 
 ## Features
 
 - Secure OAuth 2.0 authentication flow with Twitter
 - PKCE (Proof Key for Code Exchange) for enhanced security
+- Ethereum wallet integration with MetaMask (mandatory login alongside Twitter)
 - Responsive user interface
 - Session-based storage (no persistent data)
 - Comprehensive error handling
@@ -20,6 +22,7 @@ A simple web application that allows users to authenticate with their Twitter ac
 - Node.js (v14 or higher)
 - npm (v6 or higher)
 - Twitter Developer Account with OAuth 2.0 app credentials
+- MetaMask extension installed in your browser
 
 ## Setup
 
@@ -78,7 +81,10 @@ A simple web application that allows users to authenticate with their Twitter ac
    http://localhost:1234
    ```
 
-4. Click "Login with Twitter" to authenticate with your Twitter account
+4. Both "Login with Twitter" and "Connect Wallet" are required to proceed:
+   - Click "Login with Twitter" to authenticate with your Twitter/X account
+   - Click "Connect Wallet" to link your MetaMask wallet (Ethereum Mainnet)
+   - Once both are completed, your Twitter ID, account age, followers, and Ethereum address will be displayed
 
 ## About the Proxy Server
 
@@ -99,13 +105,39 @@ The proxy server:
 - `src/index.html`: Main HTML interface
 - `src/css/styles.css`: CSS styles
 - `src/js/app.js`: Main application entry point
-- `src/js/auth.js`: OAuth authentication module
+- `src/js/auth.js`: OAuth authentication module for Twitter
+- `src/js/ethereum.js`: Ethereum wallet connection module
 - `src/js/api.js`: Twitter API interaction module
 - `src/js/ui.js`: User interface management module
 - `src/js/config.js`: Configuration module
 - `src/js/utils.js`: Utility functions
 - `src/js/logger.js`: Logging module
 - `server.js`: Proxy server for handling Twitter API requests
+
+## Authentication Flow
+
+1. The user has two authentication options (both required):
+   - Twitter OAuth 2.0 authentication
+   - MetaMask wallet connection
+
+2. Twitter OAuth Flow:
+   - User clicks "Login with Twitter" button
+   - Application generates OAuth authorization URL with PKCE and redirects user
+   - User authenticates on Twitter and grants permissions
+   - Twitter redirects back to application with an authorization code
+   - Application exchanges code for access token via proxy server
+   - Application uses token to fetch user data from Twitter API
+
+3. MetaMask Wallet Connection:
+   - User clicks "Connect Wallet" button
+   - Application requests wallet connection through MetaMask
+   - MetaMask prompts user to connect and select accounts
+   - User approves connection in MetaMask popup
+   - Application receives and displays the public Ethereum address
+
+4. Combined Authentication:
+   - Only when both Twitter and MetaMask are connected, the complete user information is displayed
+   - All credentials are stored only in memory (sessionStorage) during the current session
 
 ## Security Considerations
 
@@ -117,6 +149,16 @@ The proxy server:
 - Client Secret is kept secure on the server side
 - All API interactions with Twitter are performed through the proxy server
 - Uses `x.com` domain for authorization to recognize existing user sessions while maintaining the `api.twitter.com` endpoints for API requests
+- Ethereum connection only accesses public address information and does not request transaction signing capabilities
+
+## Ethereum Wallet Integration
+
+- MetaMask is required for Ethereum wallet connection
+- The application connects to Ethereum Mainnet (chainId: 0x1)
+- If using a different network, the application will display a warning
+- Only the public Ethereum address is accessed - no private keys or signing capabilities are requested
+- The wallet connection is managed entirely on the frontend (no proxy involved)
+- Address is displayed in a truncated format for better UI experience
 
 ## Building for Production
 
@@ -132,13 +174,14 @@ The build output will be in the `dist` directory.
 
 ## Troubleshooting
 
-If you encounter authorization errors:
+If you encounter authentication errors:
 1. Verify that both `TWITTER_CLIENT_ID` and `TWITTER_CLIENT_SECRET` are correct in your `.env` file
 2. Ensure that the redirect URI (`http://localhost:1234/callback`) matches exactly what's registered in your Twitter Developer App
 3. Check the server logs for detailed error information
 4. Verify that the proxy server is running before making requests from the frontend
 5. Make sure the Twitter API permissions include `tweet.read` and `users.read`
-6. Note: The authorization URL uses `https://x.com/i/oauth2/authorize` instead of `twitter.com` to recognize active sessions from `x.com`. If you're logged into `x.com` in your browser, this should prevent repeated login prompts.
+6. If MetaMask connection fails, ensure you have the MetaMask extension installed and are logged in
+7. For Ethereum-related issues, check if you're on the Mainnet network in MetaMask (or at least aware that a warning will display if on a test network)
 
 ## Contributing
 

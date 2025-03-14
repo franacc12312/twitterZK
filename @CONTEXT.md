@@ -1,12 +1,13 @@
-# Twitter OAuth 2.0 Authentication Application
+# Twitter OAuth 2.0 & Ethereum Authentication Application
 
 ## Application Overview
-This application enables users to authenticate with their Twitter account using OAuth 2.0 and displays basic account information such as Twitter ID, account creation date (for calculating account age), and follower count.
+This application enables users to authenticate with their Twitter account using OAuth 2.0 and connect their Ethereum wallet using MetaMask. It displays basic account information such as Twitter ID, account creation date (for calculating account age), follower count, and Ethereum wallet address. Both authentication methods are mandatory for displaying user information.
 
 ## Project Structure
-- `src/index.html`: Main HTML interface with login button and user info display
+- `src/index.html`: Main HTML interface with login buttons and user info display
 - `src/js/config.js`: Configuration module for managing application settings
 - `src/js/auth.js`: OAuth authentication module for handling Twitter authentication flow
+- `src/js/ethereum.js`: Ethereum module for handling MetaMask wallet connection
 - `src/js/api.js`: Twitter API interactions module
 - `src/js/ui.js`: UI management module for handling user interface updates
 - `src/js/utils.js`: Utility functions for common operations
@@ -15,24 +16,33 @@ This application enables users to authenticate with their Twitter account using 
 - `src/css/styles.css`: Basic styling for the application
 
 ## Module Responsibilities
-1. **Config Module**: Centralizes configuration values and environment variables
+1. **Config Module**: Centralizes configuration values and environment variables for both Twitter and Ethereum
 2. **Auth Module**: Handles OAuth 2.0 flow (authorization URL generation, code exchange, token management)
-3. **API Module**: Makes requests to Twitter API endpoints to fetch user data
-4. **UI Module**: Updates the interface based on application state and handles user interactions
-5. **Utils Module**: Provides shared utility functions (data formatting, calculations)
-6. **Logger Module**: Manages consistent logging throughout the application
-7. **App Module**: Orchestrates the application flow and module interactions
+3. **Ethereum Module**: Manages MetaMask wallet connection, address retrieval, and network verification
+4. **API Module**: Makes requests to Twitter API endpoints to fetch user data
+5. **UI Module**: Updates the interface based on application state and handles user interactions
+6. **Utils Module**: Provides shared utility functions (data formatting, calculations, address truncation)
+7. **Logger Module**: Manages consistent logging throughout the application
+8. **App Module**: Orchestrates the application flow and module interactions, coordinating dual authentication
 
 ## Authentication Flow
-1. User clicks "Login with Twitter" button
-2. Application generates OAuth authorization URL and redirects user
-3. User authenticates on Twitter and grants permissions
-4. Twitter redirects back to application with an authorization code
-5. Application exchanges code for access token
-6. Application uses token to fetch user data from Twitter API
-7. User information is displayed in the UI
+1. User can click either "Login with Twitter" or "Connect Wallet" in any order
+2. Twitter Authentication:
+   - Application generates OAuth authorization URL and redirects user
+   - User authenticates on Twitter and grants permissions
+   - Twitter redirects back to application with an authorization code
+   - Application exchanges code for access token
+   - Application uses token to fetch user data from Twitter API
+3. Ethereum Authentication:
+   - Application requests wallet connection via MetaMask
+   - User approves connection in MetaMask popup
+   - Application receives and stores the public Ethereum address
+4. After both authentications are completed:
+   - Application displays Twitter ID, account age, followers, and Ethereum address
 
 ## Data Security
-- Access tokens are only stored in memory during the current session
+- Access tokens and wallet addresses are only stored in memory during the current session (using sessionStorage)
 - Sensitive credentials are kept in environment variables
-- No persistent storage of Twitter API tokens or user data 
+- No persistent storage of Twitter API tokens or user data
+- No private keys or transaction signing capabilities are requested from MetaMask
+- Only public address information is accessed from the Ethereum wallet 

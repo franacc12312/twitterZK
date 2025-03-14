@@ -48,7 +48,7 @@ async function fetchUserData() {
     });
     
     if (!response.ok) {
-      const errorData = await response.json();
+      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
       logger.error(MODULE_NAME, 'API request failed', { 
         status: response.status, 
         error: errorData 
@@ -57,8 +57,23 @@ async function fetchUserData() {
     }
     
     const userData = await response.json();
+    
+    // Validate the response contains the expected data structure
+    if (!userData || !userData.data) {
+      logger.error(MODULE_NAME, 'Invalid user data format received', userData);
+      throw new Error('Invalid user data format received from server');
+    }
+    
+    // Validate required fields are present
+    const requiredFields = ['id', 'created_at', 'public_metrics'];
+    const missingFields = requiredFields.filter(field => !userData.data[field]);
+    
+    if (missingFields.length > 0) {
+      logger.warn(MODULE_NAME, `Missing fields in user data: ${missingFields.join(', ')}`, userData.data);
+    }
+    
     logger.info(MODULE_NAME, 'Successfully fetched user data');
-    logger.debug(MODULE_NAME, 'User data', { userData });
+    logger.debug(MODULE_NAME, 'User data', userData);
     
     return userData;
   } catch (error) {
@@ -89,7 +104,7 @@ function processUserData(rawData) {
       followerCount: public_metrics?.followers_count || 0
     };
     
-    logger.debug(MODULE_NAME, 'Processed user data', { processedData });
+    logger.debug(MODULE_NAME, 'Processed user data', processedData);
     
     return processedData;
   } catch (error) {
@@ -100,17 +115,16 @@ function processUserData(rawData) {
 
 /**
  * Fetch and process user data
- * @returns {Promise<Object>} Processed user data
+ * @returns {Promise<Object>} User data
  */
 async function getUserData() {
   logger.info(MODULE_NAME, 'Getting user data');
   
   try {
-    const rawData = await fetchUserData();
-    const processedData = processUserData(rawData);
-    return processedData;
+    // Just return the raw data directly - app.js expects this format
+    return await fetchUserData();
   } catch (error) {
-    logger.error(MODULE_NAME, 'Error getting user data', { error: error.message });
+    logger.error(MODULE_NAME, `Error getting user data: ${error.message}`);
     throw error;
   }
 }
