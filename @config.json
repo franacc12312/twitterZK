@@ -1,11 +1,22 @@
 {
   "twitter": {
-    "scopes": ["tweet.read", "users.read"],
-    "redirectUri": "http://localhost:1234/callback"
+    "minAccountAgeDays": 150,
+    "minFollowers": 150
   },
-  "application": {
-    "name": "Twitter Login App",
-    "version": "1.0.0",
-    "logLevel": "info"
+  "ethereum": {
+    "mainnetChainId": "0x1"
+  },
+  "zkProof": {
+    "circuitPaths": {
+      "main": "/circuits/src/main.nr",
+      "config": "/circuits/Nargo.toml"
+    },
+    "storageKeys": {
+      "proof": "zk_proof",
+      "signature": "twitter_eth_signature"
+    }
+  },
+  "logging": {
+    "level": "info"
   }
 } 

@@ -1,0 +1,8 @@
+[package]
+name = "twitter_zkp"
+type = "bin"
+authors = [""]
+compiler_version = "0.1"
+
+[dependencies] 
+ecrecover = { path = "dep/ecrecover" } 

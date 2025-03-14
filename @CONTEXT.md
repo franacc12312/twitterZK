@@ -14,6 +14,8 @@ This application enables users to authenticate with their Twitter account using 
 - `src/js/logger.js`: Logging module for application monitoring
 - `src/js/app.js`: Main application entry point that coordinates all modules
 - `src/css/styles.css`: Basic styling for the application
+- `circuits/src/main.nr`: Main Noir circuit for zero-knowledge proofs
+- `circuits/dep/ecrecover/src/main.nr`: ECDSA signature recovery implementation for Noir
 
 ## Module Responsibilities
 1. **Config Module**: Centralizes configuration values and environment variables for both Twitter and Ethereum
@@ -24,6 +26,7 @@ This application enables users to authenticate with their Twitter account using 
 6. **Utils Module**: Provides shared utility functions (data formatting, calculations, address truncation)
 7. **Logger Module**: Manages consistent logging throughout the application
 8. **App Module**: Orchestrates the application flow and module interactions, coordinating dual authentication
+9. **Noir Circuit**: Implements zero-knowledge proofs for Twitter account verification with ECDSA signature verification
 
 ## Authentication Flow
 1. User can click either "Login with Twitter" or "Connect Wallet" in any order
@@ -39,10 +42,26 @@ This application enables users to authenticate with their Twitter account using 
    - Application receives and stores the public Ethereum address
 4. After both authentications are completed:
    - Application displays Twitter ID, account age, followers, and Ethereum address
+5. Zero-Knowledge Proof Generation:
+   - User signs a message with their Ethereum wallet
+   - Application generates a ZK proof that verifies:
+     - The Twitter account and Ethereum wallet are linked (via ECDSA signature)
+     - The Twitter account is older than 150 days
+     - The Twitter account has more than 150 followers
 
 ## Data Security
 - Access tokens and wallet addresses are only stored in memory during the current session (using sessionStorage)
 - Sensitive credentials are kept in environment variables
 - No persistent storage of Twitter API tokens or user data
 - No private keys or transaction signing capabilities are requested from MetaMask
-- Only public address information is accessed from the Ethereum wallet 
+- Only public address information is accessed from the Ethereum wallet
+- Zero-knowledge proofs ensure that sensitive information is not revealed
+
+## Zero-Knowledge Proof Implementation
+- The Noir circuit verifies three conditions:
+  1. The Twitter account is older than 150 days
+  2. The Twitter account has more than 150 followers
+  3. The Twitter account is linked to the Ethereum wallet (via ECDSA signature)
+- The ECDSA signature verification is implemented using the ecrecover function
+- The ecrecover function recovers the public key from the signature and message hash
+- The recovered public key is compared with the provided public key to verify the signature 
